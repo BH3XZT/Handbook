@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    container_name: zhangliangzuji-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+      - ./uploads:/app/uploads
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=sqlite:////app/data/zhangliangzuji.db
+    networks:
+      - zhangliangzuji-network
+    restart: unless-stopped
+
+  frontend:
+    image: node:18-alpine
+    container_name: zhangliangzuji-frontend
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000
+    command: sh -c "npm install && npm start"
+    networks:
+      - zhangliangzuji-network
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  zhangliangzuji-network:
+    driver: bridge
+
+volumes:
+  data:
+  uploads:
